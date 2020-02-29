@@ -1,0 +1,291 @@
+// 01161811026-zaka ur rehman.cpp : Defines the entry point for the console application.
+//                                      01161811026-zaka ur rehman
+//                                      01161811028-ghalia khizer
+//                                       Msc I.T 5TH
+//                                      Assignment No.1
+#include "stdafx.h"
+#include"iostream"
+using namespace std;
+#include"queue"
+#include"fstream"
+#include"string"
+struct node
+    {
+	int id;
+	string name;
+	double percentage;
+	node()
+	{
+		id,percentage=0;
+		name="\0";
+	}
+	void input()
+	{
+		cout<<endl;
+		cout<<"Enter name of student"<<endl;
+		cin.ignore();
+		getline(cin,name);
+		cout<<endl;
+		cout<<"Enter ID of student"<<endl;
+		cin>>id;
+		cout<<"Enter percentage of student"<<endl;
+		cin>>percentage;
+	}
+};
+struct bt
+{
+	struct node data;
+	bt *left;
+	bt *right;
+	bt *parent;
+	bt()
+	{
+		left=right=parent=0;
+	}
+};
+void add(bt *&start,node *x)
+{
+	bt *ptemp=new bt;
+	ptemp->data.id=x->id;
+	ptemp->data.name=x->name;
+	ptemp->data.percentage=x->percentage;
+	if(start==0)
+	{
+	    start=ptemp;
+     	return;
+	}
+	else
+	{
+		bt *p=0;
+		bt *temp=start;
+		queue<bt*> q;
+		q.push(start);
+		while(q.empty()==false)
+		{
+			if (temp->left!=0)
+				q.push(temp->left);
+			if (temp->right!=0)
+				q.push(temp->right);
+			p=q.front();
+			if(p->left==0 || p->right==0)
+				break;
+			q.pop();
+		}
+		while(q.empty()==false)
+			q.pop();
+		if(p->left==0)
+		{
+			p->left=ptemp;
+		ptemp->parent=p;
+		}
+		else 
+			if(p->right==0)
+			{
+			p->right=ptemp;
+		ptemp->parent=p;
+		
+		}
+	}
+
+}
+int level_order(bt *start)
+{
+	queue<bt*> q;
+	if(start==0)
+		return 0;
+	q.push(start);
+	while(q.empty()!=true)
+	{
+		bt *p=0;
+		p=q.front();
+		cout<<"The ID of student is = "<<p->data.id<<endl;
+		cout<<"The NAME of student is = "<<p->data.name<<endl;
+		cout<<"The PERCENTEGE of student is = "<<p->data.percentage<<endl;
+		cout<<endl;
+		if(p->left!=0)
+			q.push(p->left);
+		if(p->right!=0)
+			q.push(p->right);
+		q.pop();
+	}
+}
+bt *search1(bt *&start,int info)
+{
+	bt *p=0;
+	queue<bt*> q;
+	q.push(start);
+	while(q.empty()==false)
+	{
+		p=q.front();
+		if(p->data.id==info)
+			return p;
+		if(p->left!=0)
+			q.push(p->left);
+		if(p->right!=0)
+			q.push(p->right);
+		q.pop();
+	}
+	while(q.empty()==false)
+		q.pop();
+	
+}
+void del(bt *&start,bt *info)
+{ 
+	bt *p=0;
+	bt *ps=0;
+	bt *temp=new bt;
+	queue <bt *> q;
+	if(start!=0)
+	{
+		q.push(start);
+	}
+	while(q.empty()==false)
+	{
+		ps=q.front();
+		if(ps->left!=0)
+			q.push(ps->left);
+		if(ps->right!=0)
+			q.push(ps->right);
+		if(ps->data.id==info->data.id)
+			p=ps;
+		if(p!=0)
+		{
+			temp->data=p->data;
+			p->data=ps->data;
+			ps->data=temp->data;
+			p=ps;
+		}
+		q.pop();
+	}
+	bt *pr=p->parent;
+	if(pr!=0)
+	{
+		if(pr->left==p)
+			pr->left=0;
+		if(pr->right==p)
+			pr->right=0;
+		delete p;
+	}
+	else
+	{
+		delete p;
+		return;
+	}
+
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int n,n1=1,key,num;
+	bt *start=0;
+	node *t=0;
+	bt *t1=0;
+loop:	cout<<"for add in BT enter 1"<<endl;
+	    cout<<"for display  BT enter 2"<<endl;
+	    cout<<"for search  BT enter 3"<<endl;
+		cout<<"for delete  BT enter 4"<<endl;
+		cout<<"for write  to  BT enter 5"<<endl;
+		cout<<"for read  BT enter 6"<<endl;
+		cout<<"for terminat the programme  BT enter 7"<<endl;
+	    cin>>n;
+	switch(n)
+	{
+	case 1:
+		t=new node;
+	    t->input();
+        add(start,t);
+		break;
+	case 2:
+      level_order(start);
+	  break;
+	  case 3:
+		  cout<<"Enter ID of the student";
+		  cin>>key;
+		  cout<<"The ADRESS of student id is"<<search1(start,key);
+		  break;
+	  case 4:
+		  cout<<"Enter ID of student for delete"<<endl;
+		  cin>>num;
+		  t1=new bt;
+		  t1->data.id=num;
+		  del(start,t1);
+			  break;
+		case 5:
+		{
+			fstream filetxt;
+			filetxt.open("F:\\binaryTreeData.txt",ios::out);
+			if(!filetxt.is_open())
+			{
+				cout<<"unable to file open"<<endl;
+				return 0;
+			}
+			queue<bt*> Q;
+			bt *temp=new bt;
+			temp=start;
+			if(temp == 0)
+			{
+				cout<<"no data avialible in tree";
+				return 0;
+			}
+			Q.push(start);
+			while(Q.empty() == 0)
+			{
+				temp=Q.front();
+				filetxt<<temp->data.id<<endl;
+				if(temp->left != 0)
+				{
+					Q.push(temp->left);
+				}
+				if(temp->right != 0)
+				{
+					Q.push(temp->right);
+				}
+				Q.pop();
+			}
+			filetxt.close();
+		}
+		break;
+		case 6:
+		{
+			bt *temp=new bt;
+			const int size=100;
+			double arr[size];
+			int csize=0;
+			fstream filetxt;
+			filetxt.open("F:\\binaryTreeData.txt",ios::in);
+			if(!filetxt.is_open())
+			{
+				cout<<"unable to file open"<<endl;
+				return 0;
+			}
+			while(!filetxt.eof())
+			{
+				filetxt>>temp->data.id;
+				arr[csize]=temp->data.id;
+				csize++;
+			}
+			for(int i=0;i<csize-1;i++)
+			{
+				add(start,t);
+			}
+			cout<<endl;
+			filetxt.close();
+		}
+		break;
+		case 7:
+			return 0;
+		default:
+			{
+				cout<<"Wrong Choice try again\n";
+			}
+
+	}
+	while(n1==1)
+		goto loop;
+	system("pause");
+	return 0;
+}
+
+
+
+
+
